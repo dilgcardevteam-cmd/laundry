@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        background: #ffffff;
+        color: #002c76;
+    }
+}
+
+@layer components {
+    .laundry-shell {
+        background: #ffffff;
+    }
+
+    .bubble {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bubble::before,
+    .bubble::after {
+        position: absolute;
+        border-radius: 9999px;
+        content: "";
+        pointer-events: none;
+    }
+
+    .bubble::before {
+        top: -4rem;
+        right: -3rem;
+        width: 10rem;
+        height: 10rem;
+        background: rgba(0, 44, 118, 0.06);
+    }
+
+    .bubble::after {
+        bottom: -5rem;
+        left: -3rem;
+        width: 11rem;
+        height: 11rem;
+        border: 1.5rem solid rgba(0, 44, 118, 0.06);
+    }
+
+    .laundry-card {
+        border: 1px solid rgba(0, 44, 118, 0.14);
+        border-radius: 1.5rem;
+        background: #ffffff;
+        box-shadow: 0 16px 40px rgba(0, 44, 118, 0.1);
+    }
+}
+
+/*
+ * Keep legacy Breeze and page-level utility classes aligned with the laundry
+ * palette while individual screens are gradually consolidated.
+ */
+[class*="bg-sky-"],
+[class*="bg-blue-"],
+[class*="bg-cyan-"],
+[class*="bg-pink-"],
+[class*="bg-slate-"],
+[class*="bg-gray-"],
+[class*="bg-green-"],
+[class*="bg-red-"],
+[class*="bg-amber-"],
+[class*="bg-indigo-"],
+[class*="bg-purple-"],
+[class*="bg-rose-"],
+[class*="bg-yellow-"] {
+    background-color: #ffffff !important;
+}
+
+[class*="text-sky-"],
+[class*="text-blue-"],
+[class*="text-cyan-"],
+[class*="text-pink-"],
+[class*="text-slate-"],
+[class*="text-gray-"],
+[class*="text-green-"],
+[class*="text-red-"],
+[class*="text-amber-"],
+[class*="text-indigo-"],
+[class*="text-purple-"],
+[class*="text-rose-"],
+[class*="text-yellow-"] {
+    color: #002c76 !important;
+}
+
+/* Use opacity-based shades of the brand color for readable hierarchy. */
+[class*="text-gray-400"],
+[class*="text-gray-500"],
+[class*="text-slate-400"],
+[class*="text-slate-500"],
+[class*="text-slate-600"] {
+    color: rgba(0, 44, 118, 0.68) !important;
+}
+
+[class*="text-gray-300"],
+[class*="text-gray-600"],
+[class*="text-slate-300"] {
+    color: rgba(0, 44, 118, 0.78) !important;
+}
+
+[class*="text-blue-100"],
+[class*="text-blue-200"],
+[class*="text-blue-300"] {
+    color: rgba(255, 255, 255, 0.86) !important;
+}
+
+[class*="text-blue-400"] {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Preserve semantic action colors where status and destructive actions need
+ * to be distinguishable from the primary brand controls. */
+[class~="bg-green-100"] {
+    background-color: #dcfce7 !important;
+}
+
+[class~="text-green-800"] {
+    color: #166534 !important;
+}
+
+[class~="bg-slate-100"] {
+    background-color: #f1f5f9 !important;
+}
+
+[class~="text-slate-700"] {
+    color: #334155 !important;
+}
+
+[class~="border-amber-300"] {
+    border-color: #fcd34d !important;
+}
+
+[class~="text-amber-700"] {
+    color: #b45309 !important;
+}
+
+[class~="hover:bg-amber-50"]:hover {
+    background-color: #fffbeb !important;
+}
+
+[class~="border-red-300"] {
+    border-color: #fca5a5 !important;
+}
+
+[class~="text-red-700"] {
+    color: #b91c1c !important;
+}
+
+[class~="hover:bg-red-50"]:hover {
+    background-color: #fef2f2 !important;
+}
+
+[class*="border-sky-"],
+[class*="border-blue-"],
+[class*="border-cyan-"],
+[class*="border-pink-"],
+[class*="border-slate-"],
+[class*="border-gray-"],
+[class*="border-green-"],
+[class*="border-red-"],
+[class*="border-amber-"],
+[class*="border-indigo-"],
+[class*="border-purple-"],
+[class*="border-rose-"],
+[class*="border-yellow-"] {
+    border-color: rgba(0, 44, 118, 0.16) !important;
+}
+
+[class*="ring-sky-"],
+[class*="ring-blue-"],
+[class*="ring-cyan-"],
+[class*="ring-pink-"],
+[class*="ring-indigo-"],
+[class*="ring-purple-"] {
+    --tw-ring-color: rgba(0, 44, 118, 0.25) !important;
+}
+
+[class~="bg-[#002c76]"] {
+    background-color: #002c76 !important;
+}
+
+[class~="bg-blue-500"],
+[class~="bg-blue-600"],
+[class~="bg-blue-700"],
+[class~="bg-blue-800"],
+[class~="bg-blue-900"],
+[class~="bg-indigo-500"],
+[class~="bg-indigo-600"],
+[class~="bg-indigo-700"],
+[class~="bg-indigo-800"],
+[class~="bg-indigo-900"],
+[class~="bg-gray-700"],
+[class~="bg-gray-800"],
+[class~="bg-gray-900"] {
+    background-color: #002c76 !important;
+}
+
+[class~="text-white"],
+[class~="placeholder-white"] {
+    color: #ffffff !important;
+}
+
+[class*="text-black"] {
+    color: #002c76 !important;
+}
+
+[class~="hover:bg-blue-900"]:hover,
+[class~="hover:bg-blue-800"]:hover,
+[class~="hover:bg-indigo-700"]:hover,
+[class~="hover:bg-indigo-800"]:hover {
+    background-color: #002c76 !important;
+}
+
+.workflow-column--pending {
+    border-color: #fdba74;
+    border-top: 4px solid #ea580c;
+}
+
+.workflow-column--ongoing {
+    border-color: #93c5fd;
+    border-top: 4px solid #2563eb;
+}
+
+.workflow-column--ready {
+    border-color: #6ee7b7;
+    border-top: 4px solid #059669;
+}
+
+.workflow-column--released {
+    border-color: #cbd5e1;
+    border-top: 4px solid #64748b;
+}
+
+.workflow-column--pending .workflow-heading,
+.workflow-status--pending {
+    color: #9a3412;
+}
+
+.workflow-column--ongoing .workflow-heading,
+.workflow-status--ongoing {
+    color: #1e40af;
+}
+
+.workflow-column--ready .workflow-heading,
+.workflow-status--ready {
+    color: #065f46;
+}
+
+.workflow-column--released .workflow-heading,
+.workflow-status--released {
+    color: #334155;
+}
+
+.workflow-column--pending .workflow-count {
+    background: #ea580c;
+    color: #ffffff;
+}
+
+.workflow-column--ongoing .workflow-count {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.workflow-column--ready .workflow-count {
+    background: #059669;
+    color: #ffffff;
+}
+
+.workflow-column--released .workflow-count {
+    background: #64748b;
+    color: #ffffff;
+}
+
+.workflow-status {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.workflow-status--pending {
+    background: #ffedd5;
+}
+
+.workflow-status--ongoing {
+    background: #dbeafe;
+}
+
+.workflow-status--ready {
+    background: #d1fae5;
+}
+
+.workflow-status--released {
+    background: #e2e8f0;
+}
+
+.payment-status-badge--unpaid {
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.order-card--unpaid {
+    border-color: #fca5a5;
+    border-left: 4px solid #dc2626;
+    background-color: #fff7f7;
+}
+
+.order-drag-handle {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.order-drag-handle:active {
+    cursor: grabbing;
+}
+
+@media (min-width: 640px) and (max-width: 900px) {
+    .tablet-safe {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .tablet-nav {
+        gap: 0.35rem;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .tablet-nav > * {
+        flex: 0 0 auto;
+    }
+
+    .tablet-table {
+        min-width: 680px;
+    }
+}
