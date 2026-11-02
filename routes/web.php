@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('pos', [LaundryController::class, 'pos'])->name('pos');
     Route::post('orders', [LaundryController::class, 'storeOrder'])->name('orders.store');
     Route::get('orders', [LaundryController::class, 'orders'])->name('orders.index');
+    Route::post('orders/scan-status', [LaundryController::class, 'scanStatus'])->middleware('role:administrator,manager,laundry_staff')->name('orders.scan-status');
     Route::get('orders/{order}', [LaundryController::class, 'show'])->name('orders.show');
     Route::patch('orders/{order}/status', [LaundryController::class, 'updateStatus'])->middleware('role:administrator,manager,laundry_staff')->name('orders.status');
     Route::post('orders/{order}/payments', [LaundryController::class, 'addPayment'])->middleware('role:administrator,manager,cashier')->name('orders.payments.store');
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('admin/services/{service}', [LaundryController::class, 'updateService'])->name('admin.services.update');
         Route::patch('admin/services/{service}/toggle', [LaundryController::class, 'toggleService'])->name('admin.services.toggle');
         Route::delete('admin/services/{service}', [LaundryController::class, 'deleteService'])->name('admin.services.delete');
+        Route::post('admin/add-ons', [LaundryController::class, 'storeAddOn'])->name('admin.add-ons.store');
+        Route::put('admin/add-ons/{addOn}', [LaundryController::class, 'updateAddOn'])->name('admin.add-ons.update');
+        Route::patch('admin/add-ons/{addOn}/toggle', [LaundryController::class, 'toggleAddOn'])->name('admin.add-ons.toggle');
+        Route::delete('admin/add-ons/{addOn}', [LaundryController::class, 'deleteAddOn'])->name('admin.add-ons.delete');
         Route::get('admin/users', [LaundryController::class, 'users'])->name('admin.users');
         Route::post('admin/users', [LaundryController::class, 'storeUser'])->name('admin.users.store');
     });

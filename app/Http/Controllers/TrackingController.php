@@ -5,35 +5,23 @@ namespace App\Http\Controllers;
 use App\Domain\Tracking\TrackingToken;
 use App\Models\BusinessSetting;
 use App\Models\LaundryOrder;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class TrackingController extends Controller
 {
-    public function index(Request $request)
+    public function index(): View
     {
-        if ($request->filled('order_code')) {
-            $order = LaundryOrder::with(['customer:id,code', 'items', 'statusHistory'])
-                ->where('order_code', $request->query('order_code'))
-                ->first();
-
-            if ($order) {
-                return view('tracking.show', [
-                    'order' => $order,
-                    'businessSettings' => $this->businessSettings(),
-                ]);
-            }
-        }
-
         return view('tracking.home', [
             'businessSettings' => $this->businessSettings(),
         ]);
     }
 
-    public function show(Request $request, string $token, TrackingToken $tokens)
+    public function show(string $token, TrackingToken $tokens): View
     {
-        abort_unless(preg_match('/^[A-Za-z0-9]+$/', $token) === 1 && strlen($token) === 64, 404);
-        $order = LaundryOrder::with(['customer:id,code', 'items', 'statusHistory'])->where('tracking_token_hash', $tokens->hash($token))->firstOrFail();
+        abort_unless(preg_match('/^[A-Za-z0-9]+$/', $token) === 1 && in_array(strlen($token), [16, 64], true), 404);
+        $order = LaundryOrder::with(['customer:id,code', 'items', 'addOns', 'statusHistory'])->where('tracking_token_hash', $tokens->hash($token))->firstOrFail();
 
         return view('tracking.show', [
             'order' => $order,
@@ -41,10 +29,13 @@ class TrackingController extends Controller
         ]);
     }
 
-    public function lookup(Request $request, TrackingToken $tokens)
+    public function lookup(Request $request, TrackingToken $tokens): View
     {
-        $data = $request->validate(['order_code' => ['required', 'string', 'max:40']]);
-        $order = LaundryOrder::with(['customer:id,code', 'items', 'statusHistory'])->where('order_code', $data['order_code'])->firstOrFail();
+        $data = $request->validate([
+            'tracking_code' => ['required', 'string', 'regex:/^(?:LND-)?[A-Za-z0-9]{4}(?:-?[A-Za-z0-9]{4}){3}$/'],
+        ]);
+        $token = str_replace(['LND-', '-'], '', strtoupper($data['tracking_code']));
+        $order = LaundryOrder::with(['items', 'addOns', 'statusHistory'])->where('tracking_token_hash', $tokens->hash($token))->firstOrFail();
 
         return view('tracking.show', [
             'order' => $order,

@@ -16,7 +16,7 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="laundry-navigation border-b border-[#002c76] bg-[#002c76]">
+<nav x-data="{ open: false }" class="laundry-navigation relative z-50 border-b border-[#002c76] bg-[#002c76]">
     <!-- Primary Navigation Menu -->
     <div class="tablet-safe mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -34,7 +34,7 @@ new class extends Component
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('pos')" :active="request()->routeIs('pos')" wire:navigate>POS</x-nav-link>
-                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>Orders</x-nav-link>
+                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>Service Status</x-nav-link>
                     @if(auth()->user()->hasRole('administrator', 'manager'))
                         <x-nav-link :href="route('reports')" :active="request()->routeIs('reports')" wire:navigate>Reports</x-nav-link>
                     @endif
@@ -89,10 +89,10 @@ new class extends Component
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center md:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-white hover:text-[#002c76] focus:outline-none focus:bg-white focus:text-[#002c76] transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <button type="button" @click="open = ! open" :aria-expanded="open.toString()" :aria-label="open ? 'Close navigation menu' : 'Open navigation menu'" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#002c76] shadow-sm transition hover:bg-sky-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#002c76]">
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <path x-show="!open" x-transition.opacity.duration.150ms stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path x-show="open" x-transition.opacity.duration.150ms stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -100,15 +100,32 @@ new class extends Component
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden bg-white md:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <div
+        x-cloak
+        x-show="open"
+        x-transition:enter="transition ease-out duration-200 motion-reduce:transition-none"
+        x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150 motion-reduce:transition-none"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        @click="if ($event.target.closest('a')) open = false"
+        class="absolute left-0 right-0 top-full z-50 max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-white/15 bg-white shadow-lg md:hidden"
+    >
+        <div class="space-y-1 py-3">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('pos')" :active="request()->routeIs('pos')" wire:navigate>POS</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>Orders</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>Service Status</x-responsive-nav-link>
+            @if(auth()->user()->hasRole('administrator', 'manager'))
+                <x-responsive-nav-link :href="route('reports')" :active="request()->routeIs('reports')" wire:navigate>Reports</x-responsive-nav-link>
+            @endif
+            @if(auth()->user()->hasRole('administrator', 'manager', 'cashier'))
+                <x-responsive-nav-link :href="route('shifts')" :active="request()->routeIs('shifts')" wire:navigate>Shifts</x-responsive-nav-link>
+            @endif
             @if(auth()->user()->hasRole('administrator'))
-                <div class="border-t border-sky-100 px-3 pt-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Settings</div>
+                <div class="mt-2 border-t border-sky-100 px-4 pt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Settings</div>
                 <x-responsive-nav-link :href="route('admin.settings')" :active="request()->routeIs('admin.settings')" wire:navigate>Business settings</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.services')" :active="request()->routeIs('admin.services*')" wire:navigate>Laundry services</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users*')" wire:navigate>Users and roles</x-responsive-nav-link>
