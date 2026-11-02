@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
 #[Fillable(['order_code', 'customer_id', 'tracking_token_hash', 'subtotal', 'discount', 'additional_charges', 'total_amount', 'total_paid', 'outstanding_balance', 'payment_status', 'laundry_status', 'received_at', 'expected_completion_at', 'released_at', 'cashier_id', 'instructions', 'remarks'])]
 class LaundryOrder extends Model
@@ -32,6 +32,11 @@ class LaundryOrder extends Model
         return $this->hasMany(LaundryOrderItem::class);
     }
 
+    public function addOns(): HasMany
+    {
+        return $this->hasMany(LaundryOrderAddOn::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);
@@ -42,24 +47,8 @@ class LaundryOrder extends Model
         return $this->hasMany(LaundryStatusHistory::class);
     }
 
-    public static function formatOrderCode(int $id): string
+    public static function formatTrackingCode(string $token): string
     {
-        return 'LND-'.now()->format('Ymd').'-'.str_pad((string) $id, 6, '0', STR_PAD_LEFT);
-    }
-
-    public static function nextOrderCode(): string
-    {
-        $nextId = (int) (static::withTrashed()->max('id') ?? 0) + 1;
-
-        try {
-            $status = DB::selectOne("SHOW TABLE STATUS LIKE 'laundry_orders'");
-            if ($status && ! empty($status->Auto_increment)) {
-                $nextId = max($nextId, (int) $status->Auto_increment);
-            }
-        } catch (\Throwable) {
-            // Fallback to max ID + 1 if table status cannot be retrieved.
-        }
-
-        return static::formatOrderCode($nextId);
+        return 'LND-'.implode('-', str_split(strtoupper($token), 4));
     }
 }

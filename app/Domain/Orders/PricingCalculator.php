@@ -16,9 +16,16 @@ class PricingCalculator
             throw new InvalidArgumentException('Quantity must be greater than zero.');
         }
 
-        $billableQuantity = $service->minimum_weight !== null
-            ? max($quantity, (float) $service->minimum_weight)
-            : $quantity;
+        if ($service->pricing_method === 'per_load' && (float) $service->minimum_weight <= 0) {
+            throw new InvalidArgumentException('A per-load service must have a positive kg-per-load capacity.');
+        }
+
+        $billableQuantity = match ($service->pricing_method) {
+            'per_load' => (float) ceil($quantity / (float) $service->minimum_weight),
+            default => $service->minimum_weight !== null
+                ? max($quantity, (float) $service->minimum_weight)
+                : $quantity,
+        };
 
         $lineTotal = match ($service->pricing_method) {
             'per_kg', 'per_load', 'per_piece' => $billableQuantity * (float) $service->rate,

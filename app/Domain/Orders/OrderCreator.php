@@ -3,13 +3,13 @@
 namespace App\Domain\Orders;
 
 use App\Domain\Tracking\TrackingToken;
+use App\Models\AddOn;
 use App\Models\Customer;
 use App\Models\LaundryOrder;
 use App\Models\LaundryStatusHistory;
 use App\Models\Payment;
 use App\Models\Service;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class OrderCreator
@@ -45,7 +45,7 @@ class OrderCreator
             }
             $token = $this->tokens->issue();
             $order = LaundryOrder::create([
-                'order_code' => 'TEMP-'.Str::uuid(),
+                'order_code' => LaundryOrder::formatTrackingCode($token),
                 'customer_id' => $customer->id,
                 'tracking_token_hash' => $this->tokens->hash($token),
                 'subtotal' => 0,
@@ -61,8 +61,14 @@ class OrderCreator
 
             $subtotal = 0;
             $latestHours = 0;
-            foreach ($data['services'] as $item) {
+            foreach ($data['services'] ?? [] as $item) {
                 $service = Service::whereKey($item['service_id'])->where('is_active', true)->firstOrFail();
+                if ($service->pricing_method === 'per_load' && (float) $service->minimum_weight <= 0) {
+                    throw ValidationException::withMessages([
+                        'services' => "{$service->name} needs a maximum kg per load configured before it can be ordered.",
+                    ]);
+                }
+
                 $calculation = $this->pricing->calculate($service, (float) $item['quantity']);
                 $subtotal += $calculation['line_total'];
                 $latestHours = max($latestHours, (int) $service->estimated_processing_hours);
@@ -78,8 +84,43 @@ class OrderCreator
                 ]);
             }
 
+            $selectedAddOns = $data['add_ons'] ?? [];
+            $selectedAddOnIds = array_values(array_unique(array_map(
+                static fn (array $item): int => (int) $item['add_on_id'],
+                $selectedAddOns,
+            )));
+            $addOnQuantities = [];
+            foreach ($selectedAddOns as $item) {
+                $addOnQuantities[(int) $item['add_on_id']] = (int) $item['quantity'];
+            }
+            $addOnTotal = 0;
+            if ($selectedAddOnIds !== []) {
+                $addOns = AddOn::whereIn('id', $selectedAddOnIds)
+                    ->where('is_active', true)
+                    ->get();
+
+                if ($addOns->count() !== count($selectedAddOnIds)) {
+                    throw ValidationException::withMessages([
+                        'add_ons' => 'One or more selected add-ons are no longer available.',
+                    ]);
+                }
+
+                foreach ($addOns as $addOn) {
+                    $quantity = $addOnQuantities[$addOn->id];
+                    $lineTotal = round((float) $addOn->price * $quantity, 2);
+                    $addOnTotal += $lineTotal;
+                    $order->addOns()->create([
+                        'add_on_id' => $addOn->id,
+                        'name' => $addOn->name,
+                        'quantity' => $quantity,
+                        'price' => $addOn->price,
+                        'line_total' => $lineTotal,
+                    ]);
+                }
+            }
+
             $discount = max(0, (float) ($data['discount'] ?? 0));
-            $additional = max(0, (float) ($data['additional_charges'] ?? 0));
+            $additional = max(0, (float) ($data['additional_charges'] ?? 0)) + $addOnTotal;
             $total = max(0, round($subtotal - $discount + $additional, 2));
             $isPaid = ($data['payment_status'] ?? null) === 'paid';
             $cashTendered = $isPaid && ($data['payment_method'] ?? null) === 'cash'
@@ -96,7 +137,6 @@ class OrderCreator
                 ? $total
                 : (isset($data['payment_status']) ? 0 : min($total, max(0, (float) ($data['amount_paid'] ?? 0))));
             $order->update([
-                'order_code' => LaundryOrder::formatOrderCode($order->id),
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'additional_charges' => $additional,
@@ -127,7 +167,7 @@ class OrderCreator
                 'changed_at' => now(),
             ]);
 
-            return [$order->fresh(['customer', 'items', 'payments']), $token];
+            return [$order->fresh(['customer', 'items', 'addOns', 'payments']), $token];
         });
     }
 }

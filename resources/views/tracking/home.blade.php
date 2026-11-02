@@ -12,43 +12,39 @@
         <div class="absolute right-8 top-24 -z-10 h-12 w-12 rounded-full bg-pink-200/70 shadow-lg"></div>
         <div class="absolute bottom-10 left-1/4 -z-10 h-28 w-28 rounded-full border-8 border-white/80 bg-cyan-100/70 shadow-lg"></div>
 
-        <section class="w-full max-w-md">
+        <section class="w-full max-w-5xl">
             <div class="mb-8 text-center">
                 @if($businessSettings->get('business_logo'))
-                    <img src="{{ asset('storage/'.$businessSettings->get('business_logo')) }}" alt="{{ $businessSettings->get('business_name', 'Business logo') }}" class="mx-auto mb-5 h-20 w-20 rounded-full border-8 border-white bg-white object-contain p-1 shadow-xl shadow-sky-200">
+                    <img src="{{ asset('storage/'.$businessSettings->get('business_logo')) }}" alt="{{ $businessSettings->get('business_name', 'Business logo') }}" class="mx-auto mb-5 h-56 w-56 rounded-full border-8 border-white bg-white object-contain p-1 shadow-xl shadow-sky-200">
                 @else
-                    <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border-8 border-white bg-sky-400 text-3xl shadow-xl shadow-sky-200">✦</div>
+                    <div class="mx-auto mb-5 flex h-56 w-56 items-center justify-center rounded-full border-8 border-white bg-sky-400 text-3xl shadow-xl shadow-sky-200">✦</div>
                 @endif
-                <p class="text-sm font-semibold uppercase tracking-[0.3em] text-sky-600">{{ $businessSettings->get('business_name', 'Laundry care') }}</p>
-                <h1 class="mt-3 text-4xl font-bold tracking-tight text-slate-800">Where is your laundry?</h1>
-                <p class="mt-3 text-slate-500">Follow every fresh, clean step from drop-off to pickup.</p>
+                <p class="business-name font-bold uppercase leading-tight text-sky-600">{{ $businessSettings->get('business_name', 'Laundry care') }}</p>
                 @if($businessSettings->get('business_address') || $businessSettings->get('business_phone'))
-                    <p class="mt-3 text-sm text-slate-500">
+                    <div class="mt-3 space-y-1 text-sm text-slate-500">
                         @if($businessSettings->get('business_address'))
-                            <span>{{ $businessSettings->get('business_address') }}</span>
-                        @endif
-                        @if($businessSettings->get('business_address') && $businessSettings->get('business_phone'))
-                            <span class="mx-1" aria-hidden="true">·</span>
+                            <p>{{ $businessSettings->get('business_address') }}</p>
                         @endif
                         @if($businessSettings->get('business_phone'))
-                            <span>{{ $businessSettings->get('business_phone') }}</span>
+                            <p>{{ $businessSettings->get('business_phone') }}</p>
                         @endif
-                    </p>
+                    </div>
                 @endif
+                <h1 class="mt-4 text-4xl font-bold tracking-tight text-slate-800">Check the status of your laundry</h1>
             </div>
 
             <form method="POST" action="{{ route('tracking.lookup') }}" class="bubble laundry-card p-7">
                 @csrf
-                <h2 class="relative z-10 text-lg font-semibold text-slate-800">Enter your order details</h2>
-                <p class="relative z-10 mt-1 text-sm text-slate-500">Enter the unique tracking code printed on your receipt.</p>
+                <h2 class="relative z-10 text-lg font-semibold text-slate-800">Enter your tracking code</h2>
+                <p class="relative z-10 mt-1 text-sm text-slate-500">Enter the random tracking code printed on your receipt.</p>
                 @if($errors->any())
                     <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                         {{ $errors->first() }}
                     </div>
                 @endif
-                <label class="relative z-10 mt-6 block text-sm font-medium text-slate-600" for="order_code">Order code</label>
-                <input id="order_code" name="order_code" value="{{ old('order_code', request('order_code')) }}" required autocomplete="off" placeholder="LND-20261026-0001" class="relative z-10 mt-2 w-full rounded-xl border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-700 placeholder-slate-400 focus:border-sky-400 focus:ring-sky-400">
-                <button type="submit" class="relative z-10 mt-6 w-full rounded-xl bg-sky-500 px-4 py-3 font-semibold text-white shadow-lg shadow-sky-200 transition hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300">Track my laundry</button>
+                <label class="relative z-10 mt-6 block text-sm font-medium text-slate-600" for="tracking_code">Tracking code</label>
+                <input id="tracking_code" name="tracking_code" value="{{ old('tracking_code') }}" required autocomplete="off" autocapitalize="characters" placeholder="AB12CD34EF56GH78" class="relative z-10 mt-2 w-full rounded-xl border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-700 placeholder-slate-400 focus:border-sky-400 focus:ring-sky-400">
+                <button type="submit" class="tracking-submit relative z-10 mt-6 w-full rounded-xl px-4 py-3 font-semibold shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2">Track my laundry</button>
                 <p class="relative z-10 mt-4 text-center text-xs text-slate-400">You can also scan the bubble QR code on your receipt.</p>
             </form>
 
